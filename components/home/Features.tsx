@@ -14,14 +14,31 @@ export const FEATURE_ICONS = [
 export const WARRANTY_FEATURE = 1;
 
 /**
+ * The promises the shop has written (`feature.N.title` / `.text` in "Site texts"), each with
+ * its icon and place - a pair it has not written is left out. None at all: no row.
+ */
+export function featuresOf(t: TextOf) {
+  return FEATURE_ICONS.map((Icon, index) => ({
+    Icon,
+    index,
+    title: t(`feature.${index + 1}.title`),
+    text: t(`feature.${index + 1}.text`),
+  })).filter((feature) => feature.title || feature.text);
+}
+
+/**
  * Four promises under a hairline, in columns divided by hairlines of their own: an outline icon,
  * a title and a line each. Two by two on a phone.
  */
 export function Features({ t }: { t: TextOf }) {
+  const features = featuresOf(t);
+
+  if (features.length === 0) return null;
+
   return (
     <section className={FRAME + " mt-[32px]"}>
       <ul className="grid grid-cols-2 gap-y-8 border-t border-[#eef0f3] pt-8 lg:grid-cols-4 lg:gap-y-0 lg:pt-[29px]">
-        {FEATURE_ICONS.map((Icon, index) => (
+        {features.map(({ Icon, index, title, text }) => (
           <li
             key={index}
             className="flex gap-3 px-2 lg:justify-center lg:gap-[22px] lg:border-l lg:border-[#eef0f3] lg:px-0 lg:first:border-l-0"
@@ -33,10 +50,10 @@ export function Features({ t }: { t: TextOf }) {
             />
             <div className="min-w-0 lg:w-[152px]">
               <p className="text-[13.5px] font-medium tracking-[-0.01em] text-ink lg:text-[14px]">
-                {t(`feature.${index + 1}.title`)}
+                {title}
               </p>
               <p className="mt-[8px] text-[12px] leading-[21px] text-[#75787f] lg:text-[12.5px]">
-                {t(`feature.${index + 1}.text`)}
+                {text}
               </p>
             </div>
           </li>

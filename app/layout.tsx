@@ -25,6 +25,7 @@ import { VocabularySeed } from "../components/VocabularySeed";
 import { loadCatalog } from "../lib/catalog";
 import { colourVocabulary } from "../lib/colourVocabulary";
 import { loadCombos } from "../lib/deals";
+import { hasDeals, navLinksOf } from "../lib/navLinks";
 import { loadContent } from "../lib/content/loadContent";
 import { imageOf, textOf } from "../lib/content/textOf";
 import { BrandMark } from "../components/BrandMark";
@@ -43,15 +44,16 @@ import "./globals.css";
 //
 // Metadata declared here is a DEFAULT — a page's own `metadata` replaces it.
 export async function generateMetadata() {
-  const t = textOf(await loadContent());
+  const content = await loadContent();
+  const t = textOf(content);
 
   return {
-    title: t("brand.name"),
-    description: t("meta.site.description"),
+    title: content.brand || undefined,
+    description: t("meta.site.description") || undefined,
     // Installable: "Add to Home Screen" opens the site full screen, like an app.
     pwa: {
-      name: t("brand.name"),
-      description: t("meta.site.description"),
+      name: content.brand || undefined,
+      description: t("meta.site.description") || undefined,
       themeColor: "#ffffff",
       backgroundColor: "#ffffff",
     },
@@ -72,7 +74,19 @@ export default async function Layout({ children }: { children: ReactNode }) {
   // A shop that shows itself to signed-in customers only, to a guest: the sign-in in place of
   // every page, and nothing of the shop around it - no links, search or bag.
   const gated = await signInRequired(site);
-  const nav = gated ? [] : (content.links.nav ?? []);
+  // The shop's categories (and "Deals" while it has any) - see `lib/navLinks.ts`.
+  const nav = gated
+    ? []
+    : navLinksOf(
+        catalog.categories,
+        hasDeals(combos, catalog.products) ? t("nav.deals") : null,
+      );
+  // The categories are the shop's, so how many and how long is not known here: a row longer
+  // than the sample's (or in longer words - "Носимые устройства") would run under the logo or
+  // the icons on a laptop, so it waits for `xl` and stays in the menu until then. A rough
+  // measure in characters, since nothing can be measured on the server.
+  const wideNav =
+    nav.length > 7 || nav.reduce((sum, link) => sum + link.label.length, 0) > 56;
   // The shop's own pages - About, Delivery & returns, FAQ, Track order: over the header from
   // `lg` (`TopStrip`), under the categories in the phone's menu.
   const pages = gated ? [] : (content.links.pages ?? []);
@@ -156,18 +170,22 @@ export default async function Layout({ children }: { children: ReactNode }) {
             links={nav}
             pages={pages}
             signIn={!!signIn}
+            wide={wideNav}
           />
           <a
             className="flex items-center gap-2 text-[21px] font-semibold tracking-[-0.03em] text-ink max-lg:ml-1"
             href="/"
           >
             <BrandMark className="h-7 w-7" src={imageOf(content, "logo")} />
-            {t("brand.name")}
+            {content.brand}
           </a>
 
           <nav
             aria-label={t("nav.main")}
-            className="absolute left-1/2 hidden -translate-x-1/2 lg:block"
+            className={
+              "absolute left-1/2 hidden -translate-x-1/2 " +
+              (wideNav ? "xl:block" : "lg:block")
+            }
           >
             <ul className="flex items-center gap-7 xl:gap-10">
               {nav.map((link) => (
@@ -228,7 +246,11 @@ export default async function Layout({ children }: { children: ReactNode }) {
           read - `?product=PR-12`, or the id a QR code carries. */}
       {gated ? null : <ProductFromUrl />}
 
-      <SiteFooter current={language} languages={site?.languages ?? []} />
+      <SiteFooter
+        current={language}
+        languages={site?.languages ?? []}
+        nav={nav}
+      />
     </div>
   );
 }

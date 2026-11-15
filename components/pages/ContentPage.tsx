@@ -48,9 +48,11 @@ export function ContentSection({
 }) {
   return (
     <section className="mt-9 first:mt-0">
-      <h2 className="text-[19px] font-semibold tracking-[-0.01em] text-ink">
-        {title}
-      </h2>
+      {title ? (
+        <h2 className="text-[19px] font-semibold tracking-[-0.01em] text-ink">
+          {title}
+        </h2>
+      ) : null}
       <div className="mt-2.5 text-[15px] leading-[1.7] text-muted">
         {children}
       </div>

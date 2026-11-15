@@ -25,6 +25,10 @@ export function AboutDelivery({ image, t }: { image: string; t: TextOf }) {
   )
     .filter(([, value]) => t(value))
     .map(([label, value]) => `${t(label)} · ${t(value)}`);
+  // "We deliver across {zone}." means nothing without the zone.
+  const zone = t("delivery.zone");
+  const title = zone ? t("about.delivery.title", { zone }) : "";
+  const text = t("about.delivery.text");
 
   return (
     <PhotoBand
@@ -34,12 +38,16 @@ export function AboutDelivery({ image, t }: { image: string; t: TextOf }) {
       position="75% 50%"
     >
       <Eyebrow onDark>{t("about.delivery.eyebrow")}</Eyebrow>
-      <h2 className="mt-3 text-[30px] font-semibold leading-[1.1] tracking-[-0.035em] text-white lg:text-[38px]">
-        {t("about.delivery.title", { zone: t("delivery.zone") })}
-      </h2>
-      <p className="mt-4 max-w-[400px] text-[15px] leading-[1.65] text-white/85">
-        {t("about.delivery.text")}
-      </p>
+      {title ? (
+        <h2 className="mt-3 text-[30px] font-semibold leading-[1.1] tracking-[-0.035em] text-white lg:text-[38px]">
+          {title}
+        </h2>
+      ) : null}
+      {text ? (
+        <p className="mt-4 max-w-[400px] text-[15px] leading-[1.65] text-white/85">
+          {text}
+        </p>
+      ) : null}
       {figures.length > 0 ? (
         <ul className="mt-6 flex flex-wrap gap-2">
           {figures.map((figure) => (

@@ -34,9 +34,11 @@ export function AboutValues({ t }: { t: TextOf }) {
   return (
     <section className={FRAME + " mt-16 lg:mt-20"}>
       <Eyebrow>{t("about.values.eyebrow")}</Eyebrow>
-      <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.03em] text-ink lg:text-[30px]">
-        {t("about.values.title")}
-      </h2>
+      {t("about.values.title") ? (
+        <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.03em] text-ink lg:text-[30px]">
+          {t("about.values.title")}
+        </h2>
+      ) : null}
       <ul className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-[18px]">
         {values.map(({ Icon, title, text }) => (
           <li key={title} className="rounded-[10px] bg-tile px-6 pb-7 pt-6">

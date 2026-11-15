@@ -9,7 +9,7 @@ export async function generateMetadata() {
 
   return {
     title: t("meta.privacy.title"),
-    description: t("meta.privacy.description"),
+    description: t("meta.privacy.description") || undefined,
   };
 }
 

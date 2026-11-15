@@ -6,8 +6,17 @@ import { FRAME } from "../../lib/layout";
 
 import { Eyebrow } from "./Eyebrow";
 
-/** The photo on the left, the story on the right; stacked on a phone, the photo first. */
+/**
+ * The photo on the left, the story on the right; stacked on a phone, the photo first. The
+ * shop's own story: a line it has not written is left out, and with no title and no text the
+ * section is.
+ */
 export function AboutStory({ image, t }: { image: string; t: TextOf }) {
+  const title = t("about.story.title");
+  const paragraphs = [t("about.story.text1"), t("about.story.text2")].filter(Boolean);
+
+  if (!title && paragraphs.length === 0) return null;
+
   return (
     <section
       className={
@@ -25,15 +34,22 @@ export function AboutStory({ image, t }: { image: string; t: TextOf }) {
       ) : null}
       <div>
         <Eyebrow>{t("about.story.eyebrow")}</Eyebrow>
-        <h2 className="mt-3 max-w-[460px] text-[30px] font-semibold leading-[1.12] tracking-[-0.035em] text-ink lg:text-[36px]">
-          {t("about.story.title")}
-        </h2>
-        <p className="mt-5 max-w-[480px] text-[15px] leading-[1.75] text-body">
-          {t("about.story.text1")}
-        </p>
-        <p className="mt-4 max-w-[480px] text-[15px] leading-[1.75] text-body">
-          {t("about.story.text2")}
-        </p>
+        {title ? (
+          <h2 className="mt-3 max-w-[460px] text-[30px] font-semibold leading-[1.12] tracking-[-0.035em] text-ink lg:text-[36px]">
+            {title}
+          </h2>
+        ) : null}
+        {paragraphs.map((paragraph, index) => (
+          <p
+            key={index}
+            className={
+              (index === 0 ? "mt-5" : "mt-4") +
+              " max-w-[480px] text-[15px] leading-[1.75] text-body"
+            }
+          >
+            {paragraph}
+          </p>
+        ))}
       </div>
     </section>
   );

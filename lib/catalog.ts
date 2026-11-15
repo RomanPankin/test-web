@@ -66,7 +66,9 @@ export const loadCatalog = cache(async () => {
       id: category.id,
       name: category.name,
       description: category.description ?? "",
-      slug: slugOf(category.name) || category.id,
+      // The shop's own (untranslated) name: the anchor stays `#gaming` on a Russian page too, so
+      // a link copied in one language lands in every other.
+      slug: slugOf(category.canonicalName?.trim() || category.name) || category.id,
       // The category's own picture, else its first product's.
       image: cover ? photoOf(cover) : (inIt[0]?.image ?? ""),
       products: inIt,

@@ -10,7 +10,7 @@ export async function generateMetadata() {
 
   return {
     title: t("meta.faq.title"),
-    description: t("meta.faq.description"),
+    description: t("meta.faq.description") || undefined,
   };
 }
 
@@ -28,6 +28,7 @@ const QUESTIONS = [1, 2, 3, 4, 5, 6, 7, 8];
 export default async function FaqPage() {
   const content = await loadContent();
   const t = textOf(content);
+  const contact = t("faq.contactUrl");
 
   const items = QUESTIONS.map((index) => ({
     question: t(`faq.q${index}`),
@@ -37,16 +38,18 @@ export default async function FaqPage() {
   return (
     <ContentPage intro={t("faq.intro")} title={t("faq.title")}>
       {items.length > 0 ? <FaqList items={items} /> : null}
-      {/* The question nobody wrote down: the way to ask it. */}
-      <p className="mt-8 text-[14.5px] text-muted">
-        {t("faq.more")}{" "}
-        <a
-          className="font-medium text-brand underline-offset-2 hover:underline"
-          href={t("faq.contactUrl")}
-        >
-          {t("faq.contact")}
-        </a>
-      </p>
+      {/* The question nobody wrote down: the way to ask it - only where the shop gave one. */}
+      {contact ? (
+        <p className="mt-8 text-[14.5px] text-muted">
+          {t("faq.more")}{" "}
+          <a
+            className="font-medium text-brand underline-offset-2 hover:underline"
+            href={contact}
+          >
+            {t("faq.contact")}
+          </a>
+        </p>
+      ) : null}
     </ContentPage>
   );
 }

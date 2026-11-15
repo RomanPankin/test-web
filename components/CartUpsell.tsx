@@ -44,7 +44,10 @@ export function CartUpsell({ lines }: { lines: Line[] }) {
   return (
     <div className="mt-3 rounded-xl bg-tile px-5 pb-4 pt-5">
       <p className="text-[14px] font-medium text-ink">{t("upsell.title")}</p>
-      <p className="mt-0.5 text-[12px] text-muted">{t("upsell.text")}</p>
+      {/* The shop's own line about what it offers here - none written, none drawn. */}
+      {t("upsell.text") ? (
+        <p className="mt-0.5 text-[12px] text-muted">{t("upsell.text")}</p>
+      ) : null}
 
       <div className="mt-3 flex items-center justify-between gap-3">
         <ul className="flex min-w-0 gap-2.5">

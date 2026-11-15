@@ -14,7 +14,7 @@ export async function generateMetadata() {
 
   return {
     title: t("meta.about.title"),
-    description: t("meta.about.description"),
+    description: t("meta.about.description") || undefined,
   };
 }
 
@@ -26,7 +26,7 @@ const BUTTON_ON_DARK =
   "mt-7 inline-flex h-[46px] items-center justify-center rounded-full bg-white px-7 text-[14.5px] font-medium text-ink transition hover:bg-white/90";
 
 /**
- * Who TechStore is: sample-asian's About page, for a shop with no premises.
+ * Who the shop is: sample-asian's About page, for a shop with no premises.
  *
  * Top to bottom: the hero band, the story, four reasons to buy here (`AboutValues`), the band
  * about how a device is checked before it ships, where the shop delivers (`AboutDelivery` -
@@ -38,6 +38,14 @@ export default async function AboutPage() {
   const t = textOf(content);
   const image = (key: string) => imageOf(content, key);
   const delivers = site?.orderTypes?.includes("delivery") ?? false;
+  // Each band is the shop's photo with its words; a band without its photo is not drawn
+  // (`PhotoBand`), a line the shop has not written is left out.
+  const line = (key: string, className: string) =>
+    t(key) ? <p className={className}>{t(key)}</p> : null;
+  const heading = (key: string) =>
+    t(key) ? <h2 className={H2_ON_DARK}>{t(key)}</h2> : null;
+  const heroTitle = t("about.hero.title");
+  const heroAccent = t("about.hero.titleAccent");
 
   return (
     <main className="pb-6">
@@ -48,15 +56,18 @@ export default async function AboutPage() {
         image={image("about.hero")}
       >
         <Eyebrow onDark>{t("about.hero.eyebrow")}</Eyebrow>
-        <h1 className="mt-3 text-[40px] font-semibold leading-[1.04] tracking-[-0.045em] text-white sm:text-[52px]">
-          {t("about.hero.title")}
-          <span className="block text-brand-soft">
-            {t("about.hero.titleAccent")}
-          </span>
-        </h1>
-        <p className="mt-5 max-w-[400px] text-[15.5px] leading-[1.65] text-white/85">
-          {t("about.hero.text")}
-        </p>
+        {heroTitle || heroAccent ? (
+          <h1 className="mt-3 text-[40px] font-semibold leading-[1.04] tracking-[-0.045em] text-white sm:text-[52px]">
+            {heroTitle}
+            {heroAccent ? (
+              <span className="block text-brand-soft">{heroAccent}</span>
+            ) : null}
+          </h1>
+        ) : null}
+        {line(
+          "about.hero.text",
+          "mt-5 max-w-[400px] text-[15.5px] leading-[1.65] text-white/85",
+        )}
         <a className={BUTTON_ON_DARK} href="/shop">
           {t("hero.buy")}
         </a>
@@ -72,8 +83,8 @@ export default async function AboutPage() {
         position="65% 50%"
       >
         <Eyebrow onDark>{t("about.behind.eyebrow")}</Eyebrow>
-        <h2 className={H2_ON_DARK}>{t("about.behind.title")}</h2>
-        <p className={BODY_ON_DARK}>{t("about.behind.text")}</p>
+        {heading("about.behind.title")}
+        {line("about.behind.text", BODY_ON_DARK)}
       </PhotoBand>
 
       {delivers ? (
@@ -87,8 +98,8 @@ export default async function AboutPage() {
         image={image("about.cta")}
         position="70% 50%"
       >
-        <h2 className={H2_ON_DARK}>{t("about.cta.title")}</h2>
-        <p className={BODY_ON_DARK}>{t("about.cta.text")}</p>
+        {heading("about.cta.title")}
+        {line("about.cta.text", BODY_ON_DARK)}
         <a className={BUTTON_ON_DARK} href="/shop">
           {t("about.cta.button")}
         </a>

@@ -9,7 +9,6 @@ import { TradeIn } from "../components/home/TradeIn";
 import { bundleProductsOf } from "../lib/bundle";
 import { loadCatalog } from "../lib/catalog";
 import { loadContent } from "../lib/content/loadContent";
-import { getText } from "../lib/content/server";
 import { imageOf, textOf } from "../lib/content/textOf";
 import { loadCombos } from "../lib/deals";
 import { profilesOf } from "../lib/seo";
@@ -18,14 +17,16 @@ import { siteInfo } from "@estoreclub/storefront/server";
 
 /** The page's title and summary, in the shop's own words — see "Site texts". */
 export async function generateMetadata() {
-  const t = await getText();
+  const content = await loadContent();
+  const t = textOf(content);
 
   return {
-    title: t("meta.home.title"),
-    description: t("meta.home.description"),
+    // No line of its own: the shop's name alone.
+    title: t("meta.home.title") || content.brand,
+    description: t("meta.home.description") || undefined,
     openGraph: {
-      title: t("brand.name"),
-      description: t("meta.home.ogDescription"),
+      title: content.brand,
+      description: t("meta.home.ogDescription") || undefined,
       type: "website",
     },
   };
@@ -64,7 +65,7 @@ export default async function Page() {
     (product) => product.deal && !product.soldOut,
   );
 
-  const name = (site && site.siteName) || t("brand.name");
+  const name = content.brand;
   // The shop as search engines describe it: the organisation (its logo, its profiles) with a few
   // of what it sells, and the site itself. No search box is declared - the header's search is a
   // panel with no address of its own for a search engine to send a query to.
@@ -75,7 +76,7 @@ export default async function Page() {
         logo: imageOf(content, "logo") || undefined,
         sameAs: profilesOf(content.links.social),
       }),
-      description: t("meta.site.description"),
+      description: t("meta.site.description") || undefined,
       makesOffer: arrivals.slice(0, 6).map((product) => ({
         "@type": "Offer",
         price: product.price,

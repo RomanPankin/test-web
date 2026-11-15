@@ -2,7 +2,7 @@ import type { SiteContent, TextOf } from "./types";
 
 import { setStorefrontText } from "@estoreclub/storefront";
 
-import { DEFAULT_CONTENT } from "./defaults";
+import { UI_TEXTS } from "./ui";
 import { textOf } from "./textOf";
 
 /**
@@ -13,8 +13,11 @@ import { textOf } from "./textOf";
  * modules cannot read a context, and passing the text into every call that describes a
  * variant would thread it through the whole cart.
  */
-let current: TextOf = textOf(DEFAULT_CONTENT);
-let seeded: SiteContent = DEFAULT_CONTENT;
+// Before the seed: the interface words alone - no shop has been read yet.
+const UNSEEDED: SiteContent = { brand: "", texts: UI_TEXTS, images: {}, links: {} };
+
+let current: TextOf = textOf(UNSEEDED);
+let seeded: SiteContent = UNSEEDED;
 
 export function seedClientText(content: SiteContent): void {
   if (content === seeded) return;

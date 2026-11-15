@@ -13,7 +13,7 @@ import { discounted, money, photoUrl } from "@estoreclub/storefront";
 import { addToBag } from "../../lib/addToBag";
 import { useText } from "../ContentProvider";
 import { ChatIcon } from "../Icons";
-import { FEATURE_ICONS, WARRANTY_FEATURE } from "../home/Features";
+import { WARRANTY_FEATURE, featuresOf } from "../home/Features";
 import { DealBadge } from "../DealBadge";
 import { QuantityStepper } from "../QuantityStepper";
 import { ProductRatingLine } from "../comments/ProductRatingLine";
@@ -38,6 +38,7 @@ const fileOf = (url: string) =>
  */
 export function ProductPurchase({ product }: { product: TechProduct }) {
   const t = useText();
+  const features = featuresOf(t);
   const [chosen, setChosen] = useState<string | null>(
     product.colours[0]?.id ?? null,
   );
@@ -177,25 +178,25 @@ export function ProductPurchase({ product }: { product: TechProduct }) {
         </div>
 
         {/* The site's own promises - the same `feature.N` content the home page lists, so the
-            shop words them once. The warranty is the product's own where it states one. */}
-        <ul className="mt-8 space-y-3 border-t border-line pt-6 text-[13px] text-body">
-          {FEATURE_ICONS.map((Icon, index) => (
-            <li key={index} className="flex items-start gap-3">
-              <Icon className="shrink-0 text-ink" size={20} />
-              <span>
-                <span className="font-medium text-ink">
-                  {index === WARRANTY_FEATURE && product.warrantyMonths
-                    ? t("product.warranty", { count: product.warrantyMonths })
-                    : t(`feature.${index + 1}.title`)}
+            shop words them once. The warranty is the product's own where it states one. None
+            written: no list. */}
+        {features.length > 0 ? (
+          <ul className="mt-8 space-y-3 border-t border-line pt-6 text-[13px] text-body">
+            {features.map(({ Icon, index, title, text }) => (
+              <li key={index} className="flex items-start gap-3">
+                <Icon className="shrink-0 text-ink" size={20} />
+                <span>
+                  <span className="font-medium text-ink">
+                    {index === WARRANTY_FEATURE && product.warrantyMonths
+                      ? t("product.warranty", { count: product.warrantyMonths })
+                      : title}
+                  </span>
+                  {text ? <span className="text-muted">{" · " + text}</span> : null}
                 </span>
-                <span className="text-muted">
-                  {" · "}
-                  {t(`feature.${index + 1}.text`)}
-                </span>
-              </span>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
     </div>
   );

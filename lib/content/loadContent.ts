@@ -3,9 +3,9 @@ import type { SiteContent, SiteLink } from "./types";
 
 import { cache } from "react";
 import { getDictionaries } from "@estoreclub/api";
-import { currentLanguage } from "@estoreclub/storefront/server";
+import { currentLanguage, siteInfo } from "@estoreclub/storefront/server";
 
-import { defaultsFor } from "./locales";
+import { uiTextsFor } from "./locales";
 
 /**
  * The lists this site reads, by IDENTIFIER — the handle the shop's lists carry for code.
@@ -45,19 +45,22 @@ function grouped<T>(
 /**
  * The shop's words and pictures, read once per request.
  *
- * SERVER ONLY — it calls the API with the company key. `cache()` makes every server component
+ * SERVER ONLY - it calls the API with the company key. `cache()` makes every server component
  * that asks during one request share the one read; the layout hands the result to the client
  * islands through `ContentSeed`.
+ *
+ * Only the interface words are built in (`uiTextsFor`); everything the shop says about itself
+ * comes from its lists or not at all, so an unreachable API leaves the page without a shop
+ * rather than with the sample's.
  */
 export const loadContent = cache(async (): Promise<SiteContent> => {
-  const [fetched, language] = await Promise.all([
+  const [fetched, language, site] = await Promise.all([
     getDictionaries({ identifiers: Object.values(CONTENT_LISTS) }).catch(
       () => [] as PublicDictionary[],
     ),
     currentLanguage(),
+    siteInfo(),
   ]);
-  // What fills the gaps: the built-in words, in the language this page is read in.
-  const defaults = defaultsFor(language);
   const byId = new Map(fetched.map((d) => [d.identifier, d]));
   const pick = (identifier: string) => byId.get(identifier) ?? null;
 
@@ -71,16 +74,12 @@ export const loadContent = cache(async (): Promise<SiteContent> => {
 
   return {
     language,
-    texts: { ...defaults.texts, ...ownTexts },
-    images: {
-      ...defaults.images,
-      ...grouped(pick(CONTENT_LISTS.images), (entry) => str(entry.values?.IMAGE) || null),
-    },
-    links: {
-      ...defaults.links,
-      ...grouped<SiteLink>(pick(CONTENT_LISTS.links), (entry) =>
-        entry.name ? { label: entry.name, url: str(entry.values?.URL) } : null,
-      ),
-    },
+    // A shop may write its name for the site differently from its account's (`brand.name`).
+    brand: str(ownTexts["brand.name"]) || str(site?.siteName),
+    texts: { ...uiTextsFor(language), ...ownTexts },
+    images: grouped(pick(CONTENT_LISTS.images), (entry) => str(entry.values?.IMAGE) || null),
+    links: grouped<SiteLink>(pick(CONTENT_LISTS.links), (entry) =>
+      entry.name ? { label: entry.name, url: str(entry.values?.URL) } : null,
+    ),
   };
 });

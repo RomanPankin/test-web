@@ -17,7 +17,7 @@ export async function generateMetadata() {
 
   return {
     title: t("meta.delivery.title"),
-    description: t("meta.delivery.description"),
+    description: t("meta.delivery.description") || undefined,
   };
 }
 
@@ -55,10 +55,13 @@ export default async function DeliveryPage() {
 
       return (
         <ContentSection key={index} title={title}>
-          <p>{body}</p>
+          {body ? <p>{body}</p> : null}
         </ContentSection>
       );
     });
+  const returns = sections("returns").filter(Boolean);
+  const returnsTitle = t("returns.title");
+  const returnsIntro = t("returns.intro");
 
   return (
     <ContentPage intro={t("delivery.intro")} title={t("delivery.title")}>
@@ -105,18 +108,25 @@ export default async function DeliveryPage() {
         </p>
       )}
 
-      <section
-        className="mt-14 scroll-mt-24 border-t border-line pt-10"
-        id="returns"
-      >
-        <h2 className="text-[26px] font-semibold tracking-[-0.03em] text-ink">
-          {t("returns.title")}
-        </h2>
-        <p className="mt-2 text-[15px] leading-[1.65] text-muted">
-          {t("returns.intro")}
-        </p>
-        <div className="mt-8">{sections("returns")}</div>
-      </section>
+      {/* Returns and the warranty are the shop's own terms: nothing written, no half. */}
+      {returnsTitle || returns.length > 0 ? (
+        <section
+          className="mt-14 scroll-mt-24 border-t border-line pt-10"
+          id="returns"
+        >
+          {returnsTitle ? (
+            <h2 className="text-[26px] font-semibold tracking-[-0.03em] text-ink">
+              {returnsTitle}
+            </h2>
+          ) : null}
+          {returnsIntro ? (
+            <p className="mt-2 text-[15px] leading-[1.65] text-muted">
+              {returnsIntro}
+            </p>
+          ) : null}
+          <div className="mt-8">{returns}</div>
+        </section>
+      ) : null}
     </ContentPage>
   );
 }

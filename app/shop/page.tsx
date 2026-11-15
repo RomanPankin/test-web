@@ -16,7 +16,7 @@ export async function generateMetadata() {
 
   return {
     title: t("meta.shop.title"),
-    description: t("meta.shop.description"),
+    description: t("meta.shop.description") || undefined,
   };
 }
 
@@ -43,7 +43,7 @@ export default async function ShopPage() {
     loadCombos(),
     loadContent(),
   ]);
-  // The band's picture - "Site images" → `shop.hero`, else the sample's lineup.
+  // The band's picture - "Site images" → `shop.hero`; without one the band is words alone.
   const image = imageOf(content, "shop.hero");
   const onDeal = catalog.products.filter(
     (product) => product.deal && !product.soldOut,
@@ -85,9 +85,11 @@ export default async function ShopPage() {
             <h1 className="text-[40px] font-semibold leading-none tracking-[-0.045em] text-ink sm:text-[56px]">
               {t("shop.title")}
             </h1>
-            <p className="mt-3 max-w-[460px] text-[15px] leading-relaxed text-body sm:text-[17px]">
-              {t("shop.intro")}
-            </p>
+            {t("shop.intro") ? (
+              <p className="mt-3 max-w-[460px] text-[15px] leading-relaxed text-body sm:text-[17px]">
+                {t("shop.intro")}
+              </p>
+            ) : null}
           </div>
           {/* The lineup, cut out of its backdrop: it stands on the band on a soft floor
               shadow. Beside the words from `lg`, under them on a phone. */}

@@ -29,6 +29,7 @@ export function MobileNav({
   signIn = false,
   current: initialCurrent,
   languages,
+  wide = false,
 }: {
   links: SiteLink[];
   /** The shop's own pages (About, Delivery & returns, FAQ, Track order) - the "pages" links. */
@@ -37,6 +38,8 @@ export function MobileNav({
   signIn?: boolean;
   current?: string;
   languages: PublicLanguage[];
+  /** The header's row waits for `xl` (too many categories for a laptop): the menu stays till then. */
+  wide?: boolean;
 }) {
   const t = useText();
   const [open, setOpen] = useState(false);
@@ -66,7 +69,10 @@ export function MobileNav({
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-label={t("nav.site")}
-        className="-ml-2 grid h-10 w-10 place-items-center rounded-full text-ink transition hover:bg-black/5 lg:hidden"
+        className={
+          "-ml-2 grid h-10 w-10 place-items-center rounded-full text-ink transition hover:bg-black/5 " +
+          (wide ? "xl:hidden" : "lg:hidden")
+        }
         type="button"
         onClick={() => setOpen(true)}
       >

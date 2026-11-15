@@ -5,11 +5,11 @@ import type { TextOf } from "../../lib/content/types";
 
 import { useText } from "../ContentProvider";
 
-/** The site's sentence for a key, or null where neither the shop nor the defaults have one. */
+/** The site's sentence for a key, or null where neither the shop nor the interface words have one. */
 function said(t: TextOf, key: string, vars?: Record<string, string | number>) {
   const text = t(key, vars);
 
-  return text === key ? null : text;
+  return text && text !== key ? text : null;
 }
 
 /**

@@ -1,9 +1,10 @@
 /**
- * A category's anchor on /shop - `Phones` → `phones`, `Носимые устройства` →
- * `nosimye-ustrojstva`.
+ * A category's anchor on /shop - `Phones` → `phones`. Made from the category's canonical
+ * (untranslated) name, so it is the same in every language the page is read in; the header's
+ * and footer's category links (`lib/navLinks.ts`) point at the same slug.
  *
- * Cyrillic is spelled out in Latin letters so a Russian page gets readable anchors too; the
- * header's links (the "Site links" list, keyed `nav`) point at these, in each language.
+ * Cyrillic is spelled out in Latin letters only for a shop whose OWN name for a category is
+ * Cyrillic (`Носимые устройства` → `nosimye-ustrojstva`), so its anchors are still readable.
  */
 const CYRILLIC: Record<string, string> = {
   а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "e", ж: "zh", з: "z", и: "i", й: "j",

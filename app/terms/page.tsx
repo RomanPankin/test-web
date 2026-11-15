@@ -11,7 +11,7 @@ export async function generateMetadata() {
 
   return {
     title: t("meta.terms.title"),
-    description: t("meta.terms.description"),
+    description: t("meta.terms.description") || undefined,
   };
 }
 

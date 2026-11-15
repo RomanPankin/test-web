@@ -13,6 +13,8 @@ import { FRAME } from "../../lib/layout";
  * right, so only the half that is read over is darkened. On a phone the words span the photo,
  * so the shade does too.
  *
+ * A band is the shop's own photograph: without its "Site images" picture it is not drawn.
+ *
  * `height` is a class rather than a number, because Tailwind emits only the class names it
  * finds written out - `h-[${n}px]` produces no CSS at all.
  */
@@ -35,6 +37,8 @@ export function PhotoBand({
   className?: string;
   children: ReactNode;
 }) {
+  if (!image) return null;
+
   return (
     <section className={FRAME + " " + className}>
       <div
@@ -43,16 +47,14 @@ export function PhotoBand({
           height
         }
       >
-        {image ? (
-          <Image
-            alt=""
-            className="absolute inset-0 -z-20 h-full w-full object-cover"
-            priority={priority}
-            sizes="(min-width: 1440px) 1296px, 100vw"
-            src={image}
-            style={{ objectPosition: position }}
-          />
-        ) : null}
+        <Image
+          alt=""
+          className="absolute inset-0 -z-20 h-full w-full object-cover"
+          priority={priority}
+          sizes="(min-width: 1440px) 1296px, 100vw"
+          src={image}
+          style={{ objectPosition: position }}
+        />
         <div
           aria-hidden="true"
           className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(8,11,16,0.92)_0%,rgba(8,11,16,0.78)_32%,rgba(8,11,16,0.2)_62%,rgba(8,11,16,0)_78%)] max-lg:bg-none max-lg:bg-black/60"

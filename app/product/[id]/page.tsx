@@ -82,7 +82,7 @@ export default async function ProductPage({ params }: Props) {
   const related = (category?.products ?? [])
     .filter((each) => each.id !== product.id)
     .slice(0, 4);
-  const shopName = (site && site.siteName) || t("brand.name");
+  const shopName = (site && site.siteName) || "";
   // What a search result draws: the product with its price, stock and stars, and the trail the
   // breadcrumb above prints - Shop, its category, the product.
   const structured = [

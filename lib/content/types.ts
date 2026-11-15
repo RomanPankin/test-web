@@ -1,18 +1,22 @@
 /**
- * Everything on the site that is the SHOP's to say — every sentence, every picture that is not
- * a product's own, every link — as read from its dictionaries.
+ * What the site says and shows, split in two:
  *
- * Three lists in the dashboard's "Site" folder, all optional:
+ *   - INTERFACE words - "Add to bag", "Your bag", the account's labels - every shop needs and
+ *     nobody fills in. Built in (`ui.ts`, `locales/`), and a shop may reword any of them.
+ *   - The SHOP's own content - its name, what it sells and promises, its story, policies,
+ *     pictures and links. Read only from its dictionaries; nothing of it is in code, so a site
+ *     the API cannot answer shows no shop at all rather than somebody else's.
  *
- *   - **Site texts** — one entry per sentence. The entry's name IS the text (so it is
+ * Three lists in the dashboard's "Site" folder, read by identifier:
+ *
+ *   - **Site texts** - one entry per sentence. The entry's name IS the text (so it is
  *     translated like any name), and its `KEY` column says where on the page it goes.
- *   - **Site images** — `KEY` + `IMAGE`: the hero's phone, the promo banners.
- *   - **Site links** — `KEY` + `URL`; the name is the link's label. The footer's support links
- *     are keyed `support`, the social profiles `social`, the legal row `legal`.
+ *   - **Site images** - `KEY` + `IMAGE`: the logo, the hero's phone, the promo banners.
+ *   - **Site links** - `KEY` + `URL`; the name is the link's label. The shop's pages over the
+ *     header are keyed `pages`, the footer's support links `support`, the legal row `legal`,
+ *     the social profiles `social`.
  *
- * Anything missing — a list deleted, an entry removed, a site not seeded with them — falls back
- * to the words and pictures in `defaults.ts` (and `locales/` for other languages), so the page
- * never renders a hole.
+ * A content key the shop does not have reads as "" and the block or line it fills is left out.
  */
 export interface SiteLink {
   label: string;
@@ -20,6 +24,9 @@ export interface SiteLink {
 }
 
 export interface SiteContent {
+  /** The shop's name: its "Site texts" `brand.name` where it has one, else its site info's. */
+  brand: string;
+  /** The interface words in the page's language, with the shop's own texts over them. */
   texts: Record<string, string>;
   images: Record<string, string[]>;
   links: Record<string, SiteLink[]>;
@@ -30,7 +37,7 @@ export interface SiteContent {
   language?: string;
 }
 
-/** Values put into a text — `{brand}`, `{count}`, `{name}`. */
+/** Values put into a text - `{brand}`, `{count}`, `{name}`. */
 export type TextVars = Record<string, string | number>;
 
 /** Look a sentence up by its key, with any `{placeholders}` filled in. */

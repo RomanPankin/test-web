@@ -1,6 +1,7 @@
 /**
  * The small spaced capitals over a heading - "OUR STORY". TechStore's blue on the page, a light
- * tint of it over a dark photograph, where the full blue sinks into the shade.
+ * tint of it over a dark photograph, where the full blue sinks into the shade. Nothing for an
+ * eyebrow the shop has not written.
  */
 export function Eyebrow({
   children,
@@ -9,6 +10,8 @@ export function Eyebrow({
   children: string;
   onDark?: boolean;
 }) {
+  if (!children) return null;
+
   return (
     <p
       className={

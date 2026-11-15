@@ -1,4 +1,5 @@
 import type { PublicLanguage } from "@estoreclub/api";
+import type { SiteLink } from "../lib/content/types";
 
 import { loadContent } from "../lib/content/loadContent";
 import { imageOf, textOf } from "../lib/content/textOf";
@@ -21,18 +22,25 @@ const SOCIAL: Record<string, typeof InstagramIcon> = {
 /**
  * The footer on its light grey: the name and its line with the social icons, the shop's
  * categories and the support links - then the copyright with the ways to pay, the
- * language and the legal links. Every label is the shop's ("Site texts", "Site links").
+ * language and the legal links. The categories are the header's (`lib/navLinks.ts`); every
+ * other label is the shop's ("Site texts", "Site links"), and a column or line it has not
+ * written is left out.
  */
 export async function SiteFooter({
   current,
   languages,
+  nav,
 }: {
   current?: string;
   languages: PublicLanguage[];
+  /** The shop's categories, as the header links them. */
+  nav: SiteLink[];
 }) {
   const content = await loadContent();
   const t = textOf(content);
   const links = content.links;
+  const brand = content.brand;
+  const tagline = t("brand.tagline");
   const social = (links.social ?? []).filter(
     (link) => link.url && SOCIAL[link.label.trim().toLowerCase()],
   );
@@ -44,11 +52,13 @@ export async function SiteFooter({
           <div>
             <p className="flex items-center gap-2 text-[17px] font-semibold tracking-[-0.02em] text-ink lg:mt-[7px] lg:text-[16px]">
               <BrandMark className="h-6 w-6" src={imageOf(content, "logo")} />
-              {t("brand.name")}
+              {brand}
             </p>
-            <p className="mt-[3px] text-[12px] text-muted lg:text-[10.5px]">
-              {t("brand.tagline")}
-            </p>
+            {tagline ? (
+              <p className="mt-[3px] text-[12px] text-muted lg:text-[10.5px]">
+                {tagline}
+              </p>
+            ) : null}
             {social.length > 0 ? (
               <ul
                 aria-label={t("footer.social")}
@@ -75,7 +85,7 @@ export async function SiteFooter({
             ) : null}
           </div>
 
-          <FooterColumn links={links.nav ?? []} title={t("footer.shop")} />
+          <FooterColumn links={nav} title={t("footer.shop")} />
           <FooterColumn
             links={links.support ?? []}
             title={t("footer.support")}
@@ -84,9 +94,12 @@ export async function SiteFooter({
 
         <div className="mt-6 flex flex-col gap-4 border-t lg:mt-[17px] border-[#e6e8ee] pt-[13px] sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-x-[26px] gap-y-3">
-            <p className="text-[11px] text-muted lg:text-[9.5px]">
-              {t("footer.rights", { year: new Date().getFullYear() })}
-            </p>
+            {/* "© 2026 . All rights reserved." says nothing: only with the shop's name. */}
+            {brand ? (
+              <p className="text-[11px] text-muted lg:text-[9.5px]">
+                {t("footer.rights", { year: new Date().getFullYear() })}
+              </p>
+            ) : null}
             <PaymentMarks />
           </div>
           <div className="flex flex-wrap items-center gap-x-[26px] gap-y-2">
@@ -114,6 +127,8 @@ function FooterColumn({
   title: string;
   links: { label: string; url: string }[];
 }) {
+  if (links.length === 0) return null;
+
   return (
     <div>
       <p className="text-[12px] font-medium text-ink lg:text-[10.5px]">

@@ -1,2 +1,4 @@
 out
 out-dynamic
+node_modules
+.env*.local

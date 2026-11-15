@@ -1,0 +1,543 @@
+@import "tailwindcss";
+
+/**
+ * TechStore's palette and type, as Tailwind theme tokens — components ask for the ROLE
+ * (`text-ink`, `bg-brand`) and a change is one line here.
+ *
+ * The face is loaded by `app/site-layout.tsx`, not by an `@import` here: a remote `@import`
+ * does not survive this file's compilation.
+ *
+ * Inter throughout: a neutral grotesque that holds up at 72px in the hero and at 11px under a
+ * product name.
+ */
+@theme {
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+
+  /* The one accent: links and the trade-in price. */
+  --color-brand: #0a63ee;
+  --color-brand-hover: #0752c8;
+  --color-brand-bright: #3b8bff;
+  --color-brand-soft: #9cc0fb;
+  --color-brand-tint: #e8f0fe;
+  /* Money off - the cart's deal lines. */
+  --color-deal: #0a63ee;
+  --color-deal-strong: #0a63ee;
+  --color-deal-tint: #e8f0fe;
+
+  /* White page; the tiles and cards sit on the same cool grey the product photos are shot on. */
+  --color-page: #ffffff;
+  --color-tile: #f4f6f8;
+  --color-soft: #f4f5f8;
+  --color-ink: #111216;
+  --color-body: #3a3f4c;
+  --color-muted: #858a94;
+  --color-line: #e8eaee;
+}
+
+body {
+  font-feature-settings: "cv11", "ss01";
+  font-synthesis-weight: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* A row that scrolls sideways on a phone (the category tiles, the new arrivals) - without a
+   scrollbar drawn under it. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/**
+ * Overlay enter and exit, as keyframes rather than a class toggle.
+ *
+ * A transition needs the element to be painted in its "from" state before the class that moves
+ * it is applied — so the old implementation mounted the panel, waited two animation frames in
+ * the hope that a paint happened between them, and only then flipped the class. Usually that
+ * held. Under load — hydration, a cart request, React committing in the same frame — it did
+ * not, the panel mounted already in its final position, and there was nothing left to animate.
+ * A drawer that slides four times out of five is the shape that bug takes.
+ *
+ * An animation has no such window. It runs from its own first keyframe the moment the element
+ * is inserted, whatever else the main thread is doing, so there is no state to arrive in the
+ * right order and nothing to race.
+ *
+ * `both` fill mode: hold the first frame before it starts and the last after it ends, so a
+ * panel never flashes at its natural position on either side of the animation.
+ */
+@keyframes overlay-drawer-in {
+  from {
+    translate: 100% 0;
+    opacity: 0.8;
+  }
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-drawer-out {
+  from {
+    translate: 0 0;
+    opacity: 1;
+  }
+  to {
+    translate: 100% 0;
+    opacity: 0.8;
+  }
+}
+
+@keyframes overlay-drawer-left-in {
+  from {
+    translate: -100% 0;
+    opacity: 0.8;
+  }
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-drawer-left-out {
+  from {
+    translate: 0 0;
+    opacity: 1;
+  }
+  to {
+    translate: -100% 0;
+    opacity: 0.8;
+  }
+}
+
+@keyframes overlay-dialog-in {
+  from {
+    translate: 0 16px;
+    scale: 0.95;
+    opacity: 0;
+  }
+  to {
+    translate: 0 0;
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-dialog-out {
+  from {
+    translate: 0 0;
+    scale: 1;
+    opacity: 1;
+  }
+  to {
+    translate: 0 16px;
+    scale: 0.95;
+    opacity: 0;
+  }
+}
+
+@keyframes overlay-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* The drawer is slower than the dialog because it travels further: a panel crossing the
+   viewport in the time a 16px dialog takes is a panel that flicks. `ease-out` rather than a
+   sheet curve — measured, an iOS-style bezier puts a full-height panel 66% across in the first
+   fifth of its duration, which reads as an instant appearance rather than a slide. */
+.overlay-drawer-in {
+  animation: overlay-drawer-in 380ms ease-out both;
+}
+.overlay-drawer-out {
+  animation: overlay-drawer-out 300ms ease-in both;
+}
+.overlay-drawer-left-in {
+  animation: overlay-drawer-left-in 380ms ease-out both;
+}
+.overlay-drawer-left-out {
+  animation: overlay-drawer-left-out 300ms ease-in both;
+}
+.overlay-dialog-in {
+  animation: overlay-dialog-in 260ms ease-out both;
+}
+.overlay-dialog-out {
+  animation: overlay-dialog-out 200ms ease-in both;
+}
+
+/* The product dialog on a phone is a SHEET: it rises from the bottom edge and sinks back into
+   it, the way a phone's own panels do - a centred card that grows in from nowhere reads as a
+   web page on a small screen. Same curve as the drawer, which travels as far. */
+@keyframes overlay-sheet-in {
+  from {
+    translate: 0 100%;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+@keyframes overlay-sheet-out {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 100%;
+  }
+}
+
+@media (max-width: 639px) {
+  .overlay-sheet.overlay-dialog-in {
+    animation: overlay-sheet-in 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .overlay-sheet.overlay-dialog-out {
+    animation: overlay-sheet-out 260ms ease-in both;
+  }
+}
+
+/* The backdrop dims faster than the panel arrives, so the page is already behind glass by the
+   time the panel lands rather than the panel appearing to drag a shadow in with it. */
+.overlay-backdrop-in {
+  animation: overlay-backdrop-in 200ms ease-out both;
+}
+.overlay-backdrop-out {
+  animation: overlay-backdrop-out 200ms ease-in both;
+}
+
+/* A toast rises into place from just below, and sinks away the way it came — see
+   `components/Toaster.tsx`. The exit is shorter: arriving has to be noticed, leaving does not.
+   Its length is `EXIT_MS` in `lib/toastStore.ts`; change both together. */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+}
+.toast-in {
+  animation: toast-in 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.toast-out {
+  animation: toast-out 200ms ease-in both;
+}
+
+/* Still moves, because a panel that teleports is harder to follow than one that slides — but
+   in a fraction of the time. */
+@media (prefers-reduced-motion: reduce) {
+  .overlay-drawer-in,
+  .overlay-drawer-out,
+  .overlay-drawer-left-in,
+  .overlay-drawer-left-out,
+  .overlay-dialog-in,
+  .overlay-dialog-out,
+  .overlay-backdrop-in,
+  .overlay-backdrop-out,
+  .toast-in,
+  .toast-out,
+  .overlay-sheet.overlay-dialog-in,
+  .overlay-sheet.overlay-dialog-out {
+    animation-duration: 80ms;
+  }
+}
+
+/*
+ * Installed on a desktop with the title bar hidden (`pwa.hideTitleBar` in the layout), the
+ * window's own buttons sit over the top of the page. The header makes room for them — on the
+ * left on a Mac, on the right on Windows; `titlebar-area-*` says where they are — and becomes
+ * the handle the window is dragged by, with its links and buttons still clickable.
+ */
+@media (display-mode: window-controls-overlay) {
+  #site-header {
+    -webkit-app-region: drag;
+    app-region: drag;
+    padding-left: env(titlebar-area-x, 0px);
+    padding-right: calc(
+      100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw)
+    );
+  }
+
+  #site-header :is(a, button, input, select, textarea, [role="button"]) {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+  }
+}
+
+/*
+ * Opened from an iPhone's home screen with a translucent status bar (`pwa.translucentStatusBar`
+ * in the layout), the page reaches up under the clock. The header pads itself below it, so the
+ * strip behind the clock is the header's own solid colour and nothing scrolls under the time.
+ * Zero everywhere else.
+ */
+@media (display-mode: standalone) {
+  #site-header {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* The cart's count, popping when it changes (`CartButton` keys the badge on it), timed to land
+   as the flying photo does (`lib/flyToCart.ts`). */
+@keyframes cart-badge-pop {
+  0%,
+  60% {
+    transform: scale(1);
+  }
+  80% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cart-badge-pop {
+  animation: cart-badge-pop 900ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-badge-pop {
+    animation: none;
+  }
+}
+
+/* A deal's pill over a product photo (`DealPill`): hidden until the card is in view, then it
+   rises in and a soft light passes across it. Calmer than a restaurant's - this shop's accents
+   are quiet ones. */
+@keyframes deal-pill-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes deal-pill-shine {
+  from {
+    transform: translateX(-120%) skewX(-20deg);
+  }
+  to {
+    transform: translateX(260%) skewX(-20deg);
+  }
+}
+
+.deal-pill {
+  opacity: 0;
+}
+
+.deal-pill[data-shown] {
+  animation: deal-pill-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Positioned, for the light's band - in the base layer, so a card's `absolute` still wins. */
+@layer base {
+  .deal-pill {
+    position: relative;
+  }
+}
+
+.deal-pill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.45),
+    transparent
+  );
+  transform: translateX(-120%) skewX(-20deg);
+  pointer-events: none;
+}
+
+.deal-pill[data-shown]::after {
+  animation: deal-pill-shine 700ms ease-in-out 360ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deal-pill,
+  .deal-pill[data-shown] {
+    opacity: 1;
+    animation: none;
+  }
+
+  .deal-pill::after,
+  .deal-pill[data-shown]::after {
+    display: none;
+  }
+}
+
+/* A comment the visitor has just posted (`CommentItem`): it drops into the thread on a pale
+   brand wash that fades out, so they see where it landed. */
+@keyframes comment-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+    background-color: var(--color-brand-tint);
+  }
+  25% {
+    opacity: 1;
+    transform: none;
+    background-color: var(--color-brand-tint);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.comment-in {
+  animation: comment-in 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* The reply box, when "Reply" is pressed: it unfolds from nothing and fades in, rather than
+   shoving the thread down in one frame. Grid rows from 0fr to 1fr - its own height, whatever
+   that is - on a wrapper (`reply-open`) whose child clips. */
+@keyframes reply-open {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+.reply-open {
+  display: grid;
+  animation: reply-open 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.reply-open > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* The product dialog's two right-hand panels - the order and the reviews - trading places
+   (`ProductDialog`): the arriving one slides in from the side it lies on and fades up. Forward
+   to the reviews from the right, back to the order from the left. Shorter and without the
+   blur of a restaurant's: this shop's motion is a quiet one. */
+@keyframes product-panel-forward {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes product-panel-back {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.product-panel-forward {
+  animation: product-panel-forward 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.product-panel-back {
+  animation: product-panel-back 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comment-in,
+  .reply-open,
+  .product-panel-forward,
+  .product-panel-back {
+    animation: none;
+  }
+}
+
+/**
+ * A disclosure that unfolds instead of jumping — the FAQ's answers, and anything else built on
+ * `<details>`.
+ *
+ * Done in CSS against `::details-content`, the pseudo-element the browser wraps a `<details>`
+ * body in, so the element stays a native one: it opens with a keyboard, the browser's own
+ * in-page search finds a shut answer, and the page goes on needing no JavaScript. A React
+ * accordion would have animated just as well and given all of that up.
+ *
+ * `interpolate-size: allow-keywords` is what lets `block-size` travel to `auto` — an answer's
+ * height is whatever its words need, and hard-coding one would cut the long answer off. The
+ * `allow-discrete` on `content-visibility` is the other half: without it the content vanishes at
+ * the first frame of the close and the panel collapses under an empty box.
+ *
+ * A browser with neither simply opens the answer at once, which is what every browser did
+ * before this. Nothing is conditional on it working.
+ */
+@supports (interpolate-size: allow-keywords) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+}
+
+.disclosure::details-content {
+  block-size: 0;
+  overflow: hidden;
+  /* Fades a touch faster than it grows, so the words arrive into a space already opening for
+     them rather than being pushed down the page as they appear. */
+  opacity: 0;
+  transition:
+    block-size 280ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 180ms ease-out,
+    content-visibility 280ms allow-discrete;
+}
+
+.disclosure[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
+/* Still moves, for the same reason the overlays do: a panel that teleports is harder to follow
+   than one that slides. In a fraction of the time. */
+@media (prefers-reduced-motion: reduce) {
+  .disclosure::details-content {
+    transition-duration: 80ms;
+  }
+}

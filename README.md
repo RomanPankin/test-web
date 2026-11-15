@@ -1,11 +1,11 @@
 # Your site
 
-A Salespoint site — App Router conventions (`app/page.tsx`, an optional `app/layout.tsx`,
+An estore.club site - App Router conventions (`app/page.tsx`, an optional `app/layout.tsx`,
 `metadata`), Tailwind, and no Next dependency. It runs on `@estoreclub/server`.
 
 ```
 npm install
-cp .env.example .env.local   # set COMPANY_API_KEY + NEXT_PUBLIC_SERVER_URL
+cp .env.example .env.local   # set COMPANY_API_KEY + SERVER_URL
 npm run dev                  # local dev server with live reload
 npm run build                # prerender to a static site in ./out
 ```

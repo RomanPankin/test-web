@@ -2,7 +2,7 @@ import type { TechProduct } from "./product";
 
 /**
  * The open product, in the address: `?product=PR-12` - so a reload, a link somebody shares or
- * a QR code (`salespoint.links` in package.json) opens the same product again.
+ * a QR code (`estoreclub.links` in package.json) opens the same product again.
  *
  * Keyed by the shop's own product number (`PR-12`), the same in every language and readable;
  * the product's id where it has none, and the id is always accepted - it is what a QR code

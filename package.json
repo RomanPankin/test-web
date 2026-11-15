@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "salespoint-server --watch",
-    "start": "salespoint-server",
-    "build": "salespoint-server build"
+    "dev": "estoreclub-server --watch",
+    "start": "estoreclub-server",
+    "build": "estoreclub-server build"
   },
   "dependencies": {
     "@estoreclub/api": "*",
@@ -22,7 +22,7 @@
     "tailwindcss": "4.1.11",
     "typescript": "5.6.3"
   },
-  "salespoint": {
+  "estoreclub": {
     "links": {
       "product": "/shop?product=:productId",
       "menu": "/shop"

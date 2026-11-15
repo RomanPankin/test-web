@@ -7,7 +7,7 @@ import { setCustomer } from "@estoreclub/storefront/web";
 import { useText } from "../ContentProvider";
 
 /** What the platform's sign-in page posts back — see `PublicSiteInfo.appleSignInUrl`. */
-const CREDENTIAL_MESSAGE = "salespoint:apple-credential";
+const CREDENTIAL_MESSAGE = "estoreclub:apple-credential";
 
 /**
  * "Continue with Apple" — opens the platform's Apple sign-in page in a popup, and signs the
@@ -77,7 +77,7 @@ export function AppleButton({
 
     popup.current = window.open(
       url.toString(),
-      "salespoint-apple-sign-in",
+      "estoreclub-apple-sign-in",
       `popup,width=${width},height=${height},left=${left},top=${top}`,
     );
 

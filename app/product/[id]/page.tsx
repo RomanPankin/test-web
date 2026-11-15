@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Props) {
  * grouped the way buyers compare them (display, battery, size and weight…), what customers say,
  * and more from its category.
  *
- * `/product/PR-12`, or the product's id - what a QR code carries (`salespoint.links`). A product
+ * `/product/PR-12`, or the product's id - what a QR code carries (`estoreclub.links`). A product
  * the shop no longer sells says so and leads back to the shop.
  */
 export default async function ProductPage({ params }: Props) {

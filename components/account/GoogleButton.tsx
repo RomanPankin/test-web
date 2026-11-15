@@ -7,7 +7,7 @@ import { setCustomer } from "@estoreclub/storefront/web";
 import { useText } from "../ContentProvider";
 
 /** What the platform's sign-in page posts back — see `PublicSiteInfo.googleSignInUrl`. */
-const CREDENTIAL_MESSAGE = "salespoint:google-credential";
+const CREDENTIAL_MESSAGE = "estoreclub:google-credential";
 
 /**
  * "Continue with Google" — opens the platform's Google sign-in page in a popup, and signs the
@@ -72,7 +72,7 @@ export function GoogleButton({
 
     popup.current = window.open(
       url.toString(),
-      "salespoint-google-sign-in",
+      "estoreclub-google-sign-in",
       `popup,width=${width},height=${height},left=${left},top=${top}`,
     );
 
